@@ -1,52 +1,133 @@
-# Prerequisites
-*.d
+ public class ScrcpyEntity
+    {
+		public ScrcpyEntity()
+		{
+			this.DeviceId = "";
+			this.DeviceName = "";
+			this.Top = 0;
+			this.Left = 0;
+			this.Width = 0;
+			this.Height = 0;
+		}
+		public string DeviceId { get; set; }
+		public string DeviceName { get; set; }
+		public int Top { get; set; }
+		public int Left { get; set; }
+		public int Width { get; set; }
+		public int Height { get; set; }
+	}
+  private static void Kill()
+  {
+      RunCommand("taskkill /f /im scrcpy.exe");
+  }
+      public static string RunCommand(string cmd)
+        {
+            string result = string.Empty;
+            try
+            {
+                Process process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = Environment.ExpandEnvironmentVariables("%SystemRoot%") + "\\System32\\cmd.exe",
+                    WorkingDirectory = Application.StartupPath,
+                    Arguments = "/c " + cmd,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    Verb = "runas",
+                    RedirectStandardError = true
+                });
+                result = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
+                process.Close();
+                process.Dispose();
+            }
+            catch (Exception)
+            {
+                result = "404";
+            }
+            return result;
+        }
+        
+        
+             public static void DisplayPhone(string deviceId, string title, int y, int x, int w, int h)
+        {
+            string cmd = string.Format("scrcpy --serial \"{0}\" --window-title \"{1}\" --window-y {2} --window-x {3} --window-width {4} --window-height {5}", new object[]
+            {
+                deviceId,
+                title,
+                y,
+                x,
+                w,
+                h
+            });
+            RunCommand(cmd);
+        }
+                List<ScrcpyEntity> list = new List<ScrcpyEntity>();
+                
+                        public void StartViewPhone()
+        {
+            try
+            {
+                Kill();
+                Rectangle bounds = Screen.PrimaryScreen.Bounds;
+                int width = bounds.Width;
+                int height = bounds.Height;
+                int num = 0;
+                int num2 = 0;
+                int num3 = width / Convert.ToInt32(6);
+                int num4 = num3 * 1600 / 720;
+                int num5 = Convert.ToInt32(6);
+                int num6 = 0;
+                int count = this.dataGridView1.Rows.Count;
+                for (int i = 1; i <= count; i++)
+                {
+                    DataGridViewRow dataGridViewRow = this.dataGridView1.Rows[i - 1];
+                    object value = dataGridViewRow.Cells["Column12"].Value; // Column chứa tên thiết bị
+                    if (value != null)
+                    {
+                        list.Add(new ScrcpyEntity
+                        {
+                            DeviceName = dataGridView1.CurrentRow.Cells["Column12"].Value.ToString(), // Column chứa tên thiết bị
+                            DeviceId = value.ToString(),
+                            Top = num6 + (num + 1) * 30,
+                            Left = num2 * num3 + 5,
+                            Width = num3 - 5,
+                            Height = num4 - 15
+                        });
+                        if (i % num5 == 0 && i > 0)
+                        {
+                            num2 = 0;
+                            num++;
+                            num6 = num * num4;
+                        }
+                        else
+                        {
+                            num2++;
+                        }
+                    }
+                }
+                using (List<ScrcpyEntity>.Enumerator enumerator = list.GetEnumerator())
+                {
+                    while (enumerator.MoveNext())
+                    {
+                        ScrcpyEntity a = enumerator.Current;
+                        Action action = delegate ()
+                        {
+                            DisplayPhone(a.DeviceId, "Minh Nhat: " + a.DeviceId, a.Top, a.Left, a.Width, a.Height);
+                        };
+                        new Task(action).Start();
+                        Thread.Sleep(100);
 
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
+                    }
+                }
+            }
+            catch
+            {
 
-# Linker output
-*.ilk
-*.map
-*.exp
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
-
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
-
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
+            }
+        }
+        
+        
+        
+        
